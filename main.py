@@ -285,69 +285,45 @@ def validate(val_loader, model, criterion, debug=False, flip=True):
     bar.finish()
     return losses.avg, acces.avg, predictions
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    #===============================================================
+    # ===============================================================
     #                     General options
-    #===============================================================
+    # ===============================================================
     parser.add_argument('--datapath',           type=str, default='/data/weigq/mpii/images')
+    parser.add_argument('-c', '--checkpoint',   type=str, default='checkpoint', help='path to save checkpoint')
+    parser.add_argument('--resume',             type=str, default='', help='path to latest checkpoint')
+    parser.add_argument('-e', '--evaluate',     dest='evaluate', action='store_true', help='evaluate model on validation set')
+    parser.add_argument('-d', '--debug',        dest='debug', action='store_true', help='show intermediate results')
 
-
-    #===============================================================
+    # ===============================================================
     #                     Model options
-    #===============================================================
+    # ===============================================================
+    parser.add_argument('--arch', '-a',         default='hg', choices=model_names, help='model architecture')
+    parser.add_argument('-s', '--stacks',       type=int, default=8, help='Number of hourglasses to stack')
+    parser.add_argument('--features',           type=int, default=256, help='Number of features in the hourglass')
+    parser.add_argument('-b', '--blocks',       type=int, default=1, help='Number of residual modules at each location in the hourglass')
 
-
-    #===============================================================
+    # ===============================================================
     #                     Running options
-    #===============================================================
+    # ===============================================================
     parser.add_argument('--epochs',             type=int, default=150)
     parser.add_argument('--start-epoch',        type=int, default=0, help='start epoch/default:0')
     parser.add_argument('--lr',                 type=float, default=2.5e-4)
     parser.add_argument('--schedule',           type=int, default=60, help='lr decay every schedule')
     parser.add_argument('--gamma',              type=float, default=0.2, help='weight for lr decay')
+    parser.add_argument('-j', '--workers',      type=int, default=4, help='number of data loading workers')
+    parser.add_argument('--train-batch',        type=int, default=6)
+    parser.add_argument('--test-batch',         type=int, default=4)
+    parser.add_argument('--momentum',           type=float, default=0)
+    parser.add_argument('--weight-decay', '--wd', type=float, default=0)
 
-
-
-
-
-    parser.add_argument('--arch', '-a', metavar='ARCH', default='hg',
-                        choices=model_names,
-                        help='model architecture: ' +
-                            ' | '.join(model_names) +
-                            ' (default: resnet18)')
-    parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
-                        help='number of data loading workers (default: 4)')
-    
-    parser.add_argument('--train-batch', default=6, type=int, metavar='N',
-                        help='train batchsize')
-    parser.add_argument('--test-batch', default=6, type=int, metavar='N',
-                        help='test batchsize')
-    
-    parser.add_argument('--momentum', default=0, type=float, metavar='M',
-                        help='momentum')
-    parser.add_argument('--weight-decay', '--wd', default=0, type=float,
-                        metavar='W', help='weight decay (default: 0)')
-    
     parser.add_argument('--print-freq', '-p', default=10, type=int,
                         metavar='N', help='print frequency (default: 10)')
-    parser.add_argument('-c', '--checkpoint', default='checkpoint', type=str, metavar='PATH',
-                        help='path to save checkpoint (default: checkpoint)')
-    parser.add_argument('--resume', default='', type=str, metavar='PATH',
-                        help='path to latest checkpoint (default: none)')
-    parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
-                        help='evaluate model on validation set')
-    parser.add_argument('-d', '--debug', dest='debug', action='store_true',
-                        help='show intermediate results')
+
+
     parser.add_argument('-f', '--flip', dest='flip', action='store_true',
                         help='flip the input during validation')
-    # Model structure
-    parser.add_argument('-s', '--stacks', default=8, type=int, metavar='N',
-                        help='Number of hourglasses to stack')
-    parser.add_argument('--features', default=256, type=int, metavar='N',
-                        help='Number of features in the hourglass')
-    parser.add_argument('-b', '--blocks', default=1, type=int, metavar='N',
-                        help='Number of residual modules at each location in the hourglass')
-
 
     main(parser.parse_args())
