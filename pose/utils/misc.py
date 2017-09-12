@@ -45,11 +45,3 @@ def save_pred(preds, checkpoint='checkpoint', filename='preds_valid.mat'):
     filepath = os.path.join(checkpoint, filename)
     scipy.io.savemat(filepath, mdict={'preds' : preds})
 
-
-def adjust_learning_rate(optimizer, epoch, lr, schedule, gamma):
-    """Sets the learning rate to the initial LR decayed by schedule"""
-    if epoch in schedule:
-        lr *= gamma
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-    return lr
