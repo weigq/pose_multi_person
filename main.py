@@ -2,6 +2,7 @@ from __future__ import print_function, absolute_import
 
 import argparse
 import time
+import os
 import matplotlib.pyplot as plt
 
 import torch
@@ -77,12 +78,12 @@ def main(args):
 
     # Data loading code
     train_loader = torch.utils.data.DataLoader(
-        datasets.Mpii('data/mpii/mpii_annotations.json', args.datapath),
+        datasets.Mpii('data/mpii/results.json', args.datapath),
         batch_size=args.train_batch, shuffle=True,
         num_workers=args.workers, pin_memory=True)
     
     val_loader = torch.utils.data.DataLoader(
-        datasets.Mpii('data/mpii/mpii_annotations.json', args.datapath, train=False),
+        datasets.Mpii('data/mpii/results.json', args.datapath, is_train=False),
         batch_size=args.test_batch, shuffle=False,
         num_workers=args.workers, pin_memory=True)
 
@@ -122,7 +123,7 @@ def main(args):
     savefig(os.path.join(args.checkpoint, 'log.eps'))
 
 
-def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
+def train(train_loader, model, criterion, optimizer, debug=False, flip=False):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
@@ -146,10 +147,21 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
         output = model(input_var)
         score_map = output[-1].data.cpu()
 
-        loss = criterion(output[0], target_var)
+        loss_pts = criterion(output[0][:, :16, :, :], target_var)
         for j in range(1, len(output)):
-            loss += criterion(output[j], target_var)
-        acc = accuracy(score_map, target, idx)
+            loss_pts += criterion(output[j][:, :16, :, :], target_var)
+
+        loss_tag = 0
+        # print("....{}".format(output[0][:, 16:, :, :]))
+        # raw_input(";;;")
+        # loss_tag = tag_loss(output[0][:, 16:, :, :], meta['tpts'], meta['npeople'])
+        # for j in range(1, len(output)):
+        #     loss_tag += tag_loss(output[j][:, 16:, :, :], meta['tpts'], meta['npeople'])
+
+        # print("..{} and {}".format(loss_pts, loss_tag))
+        # raw_input(">>")
+
+        acc = accuracy(score_map[:, :16, :, :], target, idx)
 
         if debug: # visualize groundtruth and predictions
             gt_batch_img = batch_with_heatmap(inputs, target)
@@ -167,6 +179,7 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
             plt.pause(.05)
             plt.draw()
 
+        loss = loss_pts + loss_tag
         # measure accuracy and record loss
         losses.update(loss.data[0], inputs.size(0))
         acces.update(acc[0], inputs.size(0))
@@ -197,7 +210,7 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
     return losses.avg, acces.avg
 
 
-def validate(val_loader, model, criterion, debug=False, flip=True):
+def validate(val_loader, model, criterion, debug=False, flip=False):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()

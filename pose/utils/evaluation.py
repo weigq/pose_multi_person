@@ -15,6 +15,7 @@ def get_preds(scores):
         return type: torch.LongTensor
     '''
     assert scores.dim() == 4, 'Score maps should be 4-dim'
+    scores = scores.contiguous()
     maxval, idx = torch.max(scores.view(scores.size(0), scores.size(1), -1), 2)
 
     maxval = maxval.view(scores.size(0), scores.size(1), 1)
