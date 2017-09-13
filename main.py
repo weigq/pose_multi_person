@@ -318,10 +318,6 @@ if __name__ == '__main__':
     parser.add_argument('--momentum',           type=float, default=0)
     parser.add_argument('--weight-decay', '--wd', type=float, default=0)
 
-    parser.add_argument('--print-freq', '-p', default=10, type=int,
-                        metavar='N', help='print frequency (default: 10)')
-
-
     parser.add_argument('-f', '--flip', dest='flip', action='store_true',
                         help='flip the input during validation')
 
