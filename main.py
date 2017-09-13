@@ -8,7 +8,7 @@ import torch
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
-import torchvision.datasets as datasets
+# import torchvision.datasets as datasets
 
 from pose import Bar
 from pose.utils.logger import Logger, savefig
@@ -25,10 +25,9 @@ from utils.utils import adjust_learning_rate
 
 
 model_names = sorted(name for name in models.__dict__
-    if name.islower() and not name.startswith("__")
-    and callable(models.__dict__[name]))
+                     if name.islower() and not name.startswith("__") and callable(models.__dict__[name]))
 
-idx = [1,2,3,4,5,6,11,12,15,16]
+idx = [1, 2, 3, 4, 5, 6, 11, 12, 15, 16]
 
 best_acc = 0
 
@@ -49,10 +48,10 @@ def main(args):
     # define loss function (criterion) and optimizer
     criterion = torch.nn.MSELoss(size_average=True).cuda()
 
-    optimizer = torch.optim.RMSprop(model.parameters(), 
-                                lr=args.lr,
-                                momentum=args.momentum,
-                                weight_decay=args.weight_decay)
+    optimizer = torch.optim.RMSprop(model.parameters(),
+                                    lr=args.lr,
+                                    momentum=args.momentum,
+                                    weight_decay=args.weight_decay)
 
     # optionally resume from a checkpoint
     title = 'mpii-' + args.arch
@@ -93,7 +92,7 @@ def main(args):
         save_pred(predictions, checkpoint=args.checkpoint)
         return
 
-    
+
     for epoch in range(args.start_epoch, args.epochs):
         lr = adjust_learning_rate(optimizer, epoch, args.lr, args.schedule, args.gamma)
         print('\nEpoch: %d | LR: %.8f' % (epoch + 1, lr)) 
