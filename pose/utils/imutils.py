@@ -228,6 +228,7 @@ def resize(img, owidth, oheight):
 # Helpful functions generating groundtruth labelmap
 # =============================================================================
 
+
 def gaussian(shape=(7,7),sigma=1):
     """
     2D gaussian mask - should give the same result as MATLAB's

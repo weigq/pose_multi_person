@@ -9,11 +9,10 @@ import torch
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
-# import torchvision.datasets as datasets
 
 from pose import Bar
 from pose.utils.logger import Logger, savefig
-from pose.utils.evaluation import accuracy, AverageMeter, final_preds
+from pose.utils.evaluation import accuracy, final_preds
 from pose.utils.misc import save_checkpoint, save_pred
 from pose.utils.osutils import mkdir_p, isfile, isdir, join
 from pose.utils.imutils import batch_with_heatmap
@@ -22,7 +21,7 @@ import pose.models as models
 import pose.datasets as datasets
 
 
-from utils.utils import adjust_learning_rate
+from utils.utils import adjust_learning_rate, AverageMeter
 
 
 model_names = sorted(name for name in models.__dict__
@@ -92,7 +91,6 @@ def main(args):
         loss, acc, predictions = validate(val_loader, model, criterion, args.debug, args.flip)
         save_pred(predictions, checkpoint=args.checkpoint)
         return
-
 
     for epoch in range(args.start_epoch, args.epochs):
         lr = adjust_learning_rate(optimizer, epoch, args.lr, args.schedule, args.gamma)
@@ -306,8 +304,9 @@ if __name__ == '__main__':
     parser.add_argument('--datapath',           type=str, default='/data/weigq/mpii/images')
     parser.add_argument('-c', '--checkpoint',   type=str, default='checkpoint', help='path to save checkpoint')
     parser.add_argument('--resume',             type=str, default='', help='path to latest checkpoint')
-    parser.add_argument('-e', '--evaluate',     dest='evaluate', action='store_true', help='evaluate model on validation set')
+    parser.add_argument('-e', '--evaluate',     dest='evaluate', action='store_true', help='evaluate model')
     parser.add_argument('-d', '--debug',        dest='debug', action='store_true', help='show intermediate results')
+    parser.add_argument('-f', '--flip',         dest='flip', action='store_true', help='flip the input')
 
     # ===============================================================
     #                     Model options
@@ -315,7 +314,7 @@ if __name__ == '__main__':
     parser.add_argument('--arch', '-a',         default='hg', choices=model_names, help='model architecture')
     parser.add_argument('-s', '--stacks',       type=int, default=8, help='Number of hourglasses to stack')
     parser.add_argument('--features',           type=int, default=256, help='Number of features in the hourglass')
-    parser.add_argument('-b', '--blocks',       type=int, default=1, help='Number of residual modules at each location in the hourglass')
+    parser.add_argument('-b', '--blocks',       type=int, default=1, help='Number of residual modules at each location')
 
     # ===============================================================
     #                     Running options
@@ -330,8 +329,5 @@ if __name__ == '__main__':
     parser.add_argument('--test-batch',         type=int, default=4)
     parser.add_argument('--momentum',           type=float, default=0)
     parser.add_argument('--weight-decay', '--wd', type=float, default=0)
-
-    parser.add_argument('-f', '--flip', dest='flip', action='store_true',
-                        help='flip the input during validation')
 
     main(parser.parse_args())

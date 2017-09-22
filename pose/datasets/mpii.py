@@ -136,19 +136,14 @@ load dataset
 
 from __future__ import print_function, absolute_import
 
-import os
-import numpy as np
 import json
 import random
-import math
-import scipy.misc
 
-import torch
 import torch.utils.data as data
 from torchvision import transforms
 
-from pose.utils.osutils import *
 from pose.utils.imutils import *
+from pose.utils.osutils import *
 from pose.utils.transforms import *
 # from pose.utils.imtransform import *
 
@@ -218,9 +213,7 @@ class Mpii(data.Dataset):
         if self.is_train:
             print('    Mean: %.4f, %.4f, %.4f' % (param['mean'][0], param['mean'][1], param['mean'][2]))
             print('    Std:  %.4f, %.4f, %.4f' % (param['std'][0], param['std'][1], param['std'][2]))
-        #raw_input(">>>")
         return param['mean'], param['std']
-
 
     def __getitem__(self, index):
         sf = self.scale_factor
