@@ -1,15 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from .misc import *
-from .transforms import transform_preds
+__mtime__ = '17-9-22'
 
-__all__ = ['accuracy']
+import torch
 
 
 def get_preds(scores):
-    ''' get predictions from score maps in torch Tensor
-        return type: torch.LongTensor
-    '''
+    """
+    :param scores: scoremap
+    :return: coords of joints with type: torch.LongTensor
+    """
     assert scores.dim() == 4, 'Score maps should be 4-dim'
     scores = scores.contiguous()
     maxval, idx = torch.max(scores.view(scores.size(0), scores.size(1), -1), 2)
@@ -28,6 +30,12 @@ def get_preds(scores):
 
 
 def calc_dists(preds, target, normalize):
+    """
+    :param preds:
+    :param target:
+    :param normalize:
+    :return:
+    """
     preds = preds.float()
     target = target.float()
     dists = torch.zeros(preds.size(1), preds.size(0))
@@ -40,21 +48,13 @@ def calc_dists(preds, target, normalize):
     return dists
 
 
-def dist_acc(dists, thr=0.5):
-    ''' Return percentage below threshold while ignoring values with a -1 '''
-    if dists.ne(-1).sum() > 0:
-        return dists.le(thr).eq(dists.ne(-1)).sum()*1.0 / dists.ne(-1).sum()
-    else:
-        return -1
-
-
-def accuracy(output, target, idxs, thr=0.5):
+def get_accuracy(output, target, idxs, thr=0.5):
     """
-    :param output:
-    :param target:
-    :param idxs:
-    :param thr:
-    :return:
+    :param output: scoremap
+    :param target: groudtruth
+    :param idxs: ids of joints to calaulate acc
+    :param thr: threshold
+    :return: accuray of scoremap
     """
     preds   = get_preds(output)
     gts     = get_preds(target)
@@ -67,37 +67,10 @@ def accuracy(output, target, idxs, thr=0.5):
 
     for i in range(len(idxs)):
         acc[i+1] = dist_acc(dists[idxs[i]-1])
-        if acc[i+1] >= 0: 
+        if acc[i+1] >= 0:
             avg_acc = avg_acc + acc[i+1]
             cnt += 1
-            
-    if cnt != 0:  
+
+    if cnt != 0:
         acc[0] = avg_acc / cnt
     return acc
-
-
-def final_preds(output, center, scale, res):
-    coords = get_preds(output) # float type
-
-    # pose-processing
-    for n in range(coords.size(0)):
-        for p in range(coords.size(1)):
-            hm = output[n][p]
-            px = int(math.floor(coords[n][p][0]))
-            py = int(math.floor(coords[n][p][1]))
-            if 1 < px < res[0] and 1 < py < res[1]:
-                diff = torch.Tensor([hm[py - 1][px] - hm[py - 1][px - 2], hm[py][px - 1]-hm[py - 2][px - 1]])
-                coords[n][p] += diff.sign() * .25
-
-    coords += 0.5
-    preds = coords.clone()
-
-    # Transform back
-    for i in range(coords.size(0)):
-        preds[i] = transform_preds(coords[i], center[i], scale[i], res)
-
-    if preds.dim() < 3:
-        preds = preds.view(1, preds.size())
-
-    return preds
-

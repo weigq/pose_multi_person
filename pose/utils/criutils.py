@@ -33,8 +33,7 @@ def tag_loss(tagmap, trans_pts, npeople):
         for n in range(num_pp.size(0)):
             for j in range(len(num_pts_all[n])):
                 inj = num_pts_all[n][j]
-                loss1 += (tagmap.data[b][inj][int(trans_pts[b][n][inj][1])][int(trans_pts[b][n][inj][0])] - num_pp[
-                    n]) ** 2
+                loss1 += (tagmap.data[b][inj][int(trans_pts[b][n][inj][1])][int(trans_pts[b][n][inj][0])] - num_pp[n]) ** 2
             for n_ in range(num_pp.size(0)):
                 loss2 += math.exp(-1.0 * (num_pp[n] - num_pp[n_]) ** 2 / 2 / sigmma ** 2)
         loss1 /= trans_pts.size(0)

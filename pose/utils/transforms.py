@@ -159,11 +159,6 @@
 #
 #     new_img = im_to_torch(scipy.misc.imresize(new_img, res))
 #     return new_img
-
-
-
-
-
 from __future__ import absolute_import
 
 import os
@@ -175,12 +170,12 @@ import torch
 from .misc import *
 from .imutils import *
 
+
 def color_normalize(x, mean, std):
     if x.size(0) == 1:
         x = x.repeat(3, x.size(1), x.size(2))
-    #return (x - mean.view(3, 1, 1).expand_as(x)) #/ std.view(3, 1, 1).expand_as(x)
     for t, m, s in zip(x, mean, std):
-        t.sub_(m)
+        t.sub_(m).div_(s)
     return x
 
 

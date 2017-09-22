@@ -240,6 +240,7 @@ def gaussian(shape=(7,7),sigma=1):
     h[ h < np.finfo(h.dtype).eps*h.max() ] = 0
     return to_torch(h).float()
 
+
 def draw_gaussian(img_in, pt, sigma):
     '''
     Draw a 2D gaussian

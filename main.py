@@ -161,7 +161,7 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=False):
 
         acc = accuracy(score_map[:, :16, :, :], target, idx)
 
-        if debug: # visualize groundtruth and predictions
+        if debug:  # visualize groundtruth and predictions
             gt_batch_img = batch_with_heatmap(inputs, target)
             pred_batch_img = batch_with_heatmap(inputs, score_map)
             if not gt_win or not pred_win:

@@ -177,13 +177,12 @@ class Mpii(data.Dataset):
         # self.train = self.train[0:4]
         # self.valid = self.valid[0:1]
 
-        if self.is_train == True:
+        if self.is_train:
             print("length of training set: {}".format(len(self.train)))
         else:
             print("length of validation set: {}".format(len(self.valid)))
 
         self.mean, self.std = self._get_param()
-
 
     def _get_param(self):
         param_file = './data/mpii/mean.pth.tar'
@@ -194,7 +193,7 @@ class Mpii(data.Dataset):
             std = torch.zeros(3)
             i = 1
             for index in self.train:
-                if i%1000 == 0:
+                if i % 1000 == 0:
                     print("processed {}/{} images\n".format(i, len(self.train)))
                 i += 1
 
