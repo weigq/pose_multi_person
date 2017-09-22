@@ -22,6 +22,7 @@ import pose.datasets as datasets
 
 
 from utils.utils import adjust_learning_rate, AverageMeter
+from utils.eval import get_accuracy
 
 
 model_names = sorted(name for name in models.__dict__

@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 __mtime__ = '17-9-22'
 
+__all__ = ['get_accuracy']
+
 import torch
 
 
